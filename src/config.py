@@ -8,7 +8,7 @@ class Config:
     # --- Data & Graph Parameters ---
     TEST_SIZE = 0.2
     BATCH_SIZE = 8192
-    SPLIT_TYPE = "random"   # "temporal" for time-sequential split, "random" for random split
+    SPLIT_TYPE = "temporal"   # "temporal" for time-sequential split, "random" for random split
     
     # --- Model Hyperparameters ---
     EMB_DIM = 64

@@ -54,11 +54,12 @@ def load_and_prep_movielens(split_type="random"):
     num_items = len(item_uniques)
     
     if split_type == "temporal":
-        # Sort by time and take the last 20% per user
+        # Sort by time
         df = df.sort_values(['user_idx', 'timestamp'])
 
         group_sizes = df.groupby('user_idx')['user_idx'].transform('size')
-        cutoff = (group_sizes * (1 - Config.TEST_SIZE)).astype(int)
+        # cutoff = (group_sizes * (1 - Config.TEST_SIZE)).astype(int)
+        cutoff = group_sizes - 3
         ranks = df.groupby('user_idx').cumcount()
 
         test_df = df[ranks >= cutoff]
