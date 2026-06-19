@@ -7,14 +7,14 @@ from tqdm import tqdm
 from config import Config
 from data_pipeline import load_and_prep_movielens, BPRDataset
 from model import SimpleLightGCN
-from evaluate import evaluate_metrics_at_k
+from evaluate import evaluate_random_metrics_at_k, evaluate_loo_metrics_at_k
 
 def train():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Training on device: {device}")
 
     # 1. Load Data
-    train_edge_index, test_edge_index, num_users, num_items = load_and_prep_movielens(Config.SPLIT_TYPE)
+    train_edge_index, test_edge_index, num_users, num_items = load_and_prep_movielens(Config.DATA_PATH, Config.SPLIT_TYPE)
     train_edge_index = train_edge_index.to(device)
     test_edge_index = test_edge_index.to(device)
 
@@ -75,15 +75,20 @@ def train():
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict()
             }
-            save_path = os.path.join(Config.CKPT_DIR, f"model_epoch_{epoch}.pth")
+            save_path = os.path.join(Config.CKPT_DIR, f"model_epoch_{epoch}_{Config.SPLIT_TYPE}.pth")
             torch.save(checkpoint_state, save_path)
             print(f"Routine checkpoint saved at Epoch {epoch}")
 
         # Evaluation & Best Model Save
         if epoch % Config.EVAL_EPOCH == 0:
-            recall, ndcg, mrr, precision = evaluate_metrics_at_k(
-                model, train_edge_index, test_edge_index, eval_batch_size=Config.BATCH_SIZE, k=Config.K
-            )
+            if Config.SPLIT_TYPE == "random":
+                recall, ndcg, mrr, precision = evaluate_random_metrics_at_k(
+                    model, train_edge_index, test_edge_index, eval_batch_size=Config.BATCH_SIZE, k=Config.K
+                )
+            elif Config.SPLIT_TYPE == "temporal":
+                recall, ndcg, mrr, precision = evaluate_loo_metrics_at_k(
+                    model, train_edge_index, test_edge_index, eval_batch_size=Config.BATCH_SIZE, k=Config.K
+                )
             
             print(f"Epoch {epoch:03d} | Training Loss: {avg_loss:.4f} | Recall@{Config.K}: {recall:.4f} | NDCG@{Config.K}: {ndcg:.4f} | MRR@{Config.K}: {mrr:.4f} | Precision@{Config.K}: {precision:.4f}")
             
@@ -98,7 +103,7 @@ def train():
                     f'mrr@{Config.K}': mrr,
                     f'precision@{Config.K}': precision
                 }
-                torch.save(best_state, os.path.join(Config.CKPT_DIR, "best_model.pth"))
+                torch.save(best_state, os.path.join(Config.CKPT_DIR, f"best_model_{Config.SPLIT_TYPE}.pth"))
                 print(f"-> New best model saved! (NDCG@{Config.K}: {best_ndcg:.4f})")
 
 if __name__ == "__main__":

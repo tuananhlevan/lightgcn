@@ -5,3 +5,4 @@ ckpt/*
 load_metrics.py
 run.sh
 log
+report

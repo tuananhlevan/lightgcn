@@ -1,5 +1,8 @@
 import os
 
+# Config for temporal split: {SPLIT_TYPE: "temporal", K: 10, NUM_LAYERS: 2}
+# Config for random 80-20 split: {SPLIT_TYPE: "random, K: 20, NUM_LAYERS: 3}
+
 class Config:
     # --- File Paths ---
     DATA_PATH = "data/ratings.csv"
@@ -12,17 +15,17 @@ class Config:
     
     # --- Model Hyperparameters ---
     EMB_DIM = 64
-    NUM_LAYERS = 3
+    NUM_LAYERS = 2
 
     # --- Training Hyperparameters ---
     EPOCHS = 400
     LEARNING_RATE = 1e-3
     REG_WEIGHT = 1e-4
     EVAL_EPOCH = 20         # How often we calculate metrics
-    SAVE_EPOCH = 50        # How often do we save model
+    SAVE_EPOCH = 50         # How often do we save model
     
     # --- Evaluate Hyperparameters ---
-    K = 20                  # Top K
+    K = 10                  # Top K
 
     # Ensure output directories exist when config is loaded
     os.makedirs(CKPT_DIR, exist_ok=True)
