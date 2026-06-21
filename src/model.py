@@ -3,17 +3,15 @@ import torch.nn as nn
 from torch_geometric.nn import LGConv
 from torch_geometric.utils import to_undirected
 
-from config import Config
-
 class SimpleLightGCN(nn.Module):
-    def __init__(self, num_users, num_items):
+    def __init__(self, num_users, num_items, num_layers=3, emb_dim=64):
         super().__init__()
         self.num_users = num_users
         self.num_items = num_items
         
-        self.num_layers = Config.NUM_LAYERS
+        self.num_layers = num_layers
         
-        self.embedding = nn.Embedding(num_users + num_items, Config.EMB_DIM)
+        self.embedding = nn.Embedding(num_users + num_items, emb_dim)
         nn.init.normal_(self.embedding.weight, std=0.1)
         
         self.conv = LGConv()

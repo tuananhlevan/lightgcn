@@ -14,7 +14,7 @@ def train():
     print(f"Training on device: {device}")
 
     # 1. Load Data
-    train_edge_index, test_edge_index, num_users, num_items = load_and_prep_movielens(Config.DATA_PATH, Config.SPLIT_TYPE)
+    train_edge_index, test_edge_index, num_users, num_items = load_and_prep_movielens(Config.DATA_PATH, Config.TEST_SIZE, Config.SPLIT_TYPE)
     train_edge_index = train_edge_index.to(device)
     test_edge_index = test_edge_index.to(device)
 
@@ -22,7 +22,7 @@ def train():
     train_loader = DataLoader(train_dataset, batch_size=Config.BATCH_SIZE, shuffle=True)
 
     # 2. Initialize Model, Graph and Optimizer
-    model = SimpleLightGCN(num_users, num_items).to(device)
+    model = SimpleLightGCN(num_users, num_items, num_layers=Config.NUM_LAYERS, emb_dim=Config.EMB_DIM).to(device)
     optimizer = torch.optim.Adam(
         model.parameters(), 
         lr=Config.LEARNING_RATE,

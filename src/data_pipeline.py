@@ -5,8 +5,6 @@ from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 import random
 
-# from config import Config
-
 class BPRDataset(Dataset):
     def __init__(self, train_edge_index, num_items):
         self.train_edge_index = train_edge_index
@@ -37,7 +35,7 @@ class BPRDataset(Dataset):
                torch.tensor(pos_item, dtype=torch.long), \
                torch.tensor(neg_item, dtype=torch.long)
 
-def load_and_prep_movielens(data_path, split_type="random"):
+def load_and_prep_movielens(data_path, test_size=0.2, split_type="random"):
     df = pd.read_csv(data_path)
     
     df = df[df['rating'] >= 3.0].copy()
@@ -66,7 +64,7 @@ def load_and_prep_movielens(data_path, split_type="random"):
     elif split_type == "random":
         train_df, test_df = train_test_split(
             df, 
-            test_size=Config.TEST_SIZE, 
+            test_size=test_size, 
             random_state=42, 
             stratify=df['user_idx']
         )
